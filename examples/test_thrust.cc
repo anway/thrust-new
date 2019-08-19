@@ -6,6 +6,8 @@
 // This is a simple test program.
 // It studies event properties of LEP1 events.
 
+#include <cstdio>
+#include <ctime>
 #include "Pythia8/Pythia.h"
 
 using namespace Pythia8;
@@ -34,6 +36,7 @@ int main() {
   Hist dThrust("delta thrust", 100, -1., 1.);
   Hist dOblateness("delta oblateness", 100, -1., 1.);
   Hist dTAxis("delta cos(theta_Thrust)", 100, -2., 2.);
+  Hist dTime("delta time", 100, -2., 2.);
 
   // Set up Thrust analysis.
   Thrust thrOld, thrNew;
@@ -43,8 +46,14 @@ int main() {
     if (!pythia.next()) continue;
 
     // Find and histogram thrust.
-    if (thrOld.analyze( pythia.event )) {
-        if (thrNew.analyze( pythia.event )) {
+    std::clock_t thrOldStart = std::clock();
+    bool thrOldDone = thrOld.analyze( pythia.event );
+    double thrOldEnd = std::clock() - thrOldStart;
+    if (thrOldDone) {
+		std::clock_t thrNewStart = std::clock();
+        bool thrNewDone = thrNew.analyze( pythia.event );
+		double thrNewEnd = std::clock() - thrNewStart;
+        if (thrNewDone) {
           if (iEvent < 3) {
 			cout << "Old thrust result" << endl;
 			thrOld.list();
@@ -53,13 +62,14 @@ int main() {
           dThrust.fill( thrNew.thrust() - thrOld.thrust());
           dOblateness.fill( thrNew.oblateness() - thrOld.oblateness());
           dTAxis.fill( thrNew.eventAxis(1).pz() - thrOld.eventAxis(1).pz());
+          dTime.fill( thrOldEnd - thrNewEnd);
       }
     }
 
   // End of event loop. Statistics. Output histograms.
   }
   pythia.stat();
-  cout << dThrust << dOblateness << dTAxis << endl;;
+  cout << dThrust << dOblateness << dTAxis << dTime << endl;;
 
   // Done.
   return 0;
