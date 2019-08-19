@@ -33,7 +33,7 @@ int main() {
   // Histogram for thrust difference.
   Hist dThrust("delta thrust", 100, -1., 1.);
   Hist dOblateness("delta oblateness", 100, -1., 1.);
-  Hist dTAxis("cos(theta_Thrust)", 100, -2., 2.);
+  Hist dTAxis("delta cos(theta_Thrust)", 100, -2., 2.);
 
   // Set up Thrust analysis.
   Thrust thrOld, thrNew;
@@ -46,7 +46,9 @@ int main() {
     if (thrOld.analyze( pythia.event )) {
         if (thrNew.analyze( pythia.event )) {
           if (iEvent < 3) {
+			cout << "Old thrust result" << endl;
 			thrOld.list();
+			cout << "New thrust result" << endl;
             thrNew.list(); }
           dThrust.fill( thrNew.thrust() - thrOld.thrust());
           dOblateness.fill( thrNew.oblateness() - thrOld.oblateness());
