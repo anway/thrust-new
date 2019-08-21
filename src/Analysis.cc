@@ -357,7 +357,7 @@ bool Thrust::analyzeNew(const Event& event) {
   if (event[i].isFinal()) {
     if (select >  2 &&  event[i].isNeutral() ) continue;
     if (select == 2 && !event[i].isVisible() ) continue;
-    nStudy++;
+    ++nStudy;
 
     // Store momenta. Use energy component for absolute momentum.
     Vec4 pNow = event[i].p();
@@ -396,14 +396,14 @@ bool Thrust::analyzeNew(const Event& event) {
 
 		// Sum momenta in candidate partition.
 		for (int i2 = 0; i2 < nStudy - 1; i2++) {
-			pFull += pOrderDouble[i2] / 2.;
+			pFull += pSort[i2] / 2.;
 		} 
         pFull.e(pFull.pAbs());
         if (pFull.e() > pMax.e()) pMax = pFull;
 
         // Check all other partitions.
 		for (int i2 = 1; i2 < 2 * nStudy - 1; i2++) {
-			pFull -= pOrderDouble[i2];
+			pFull -= pSort[i2];
             pFull.e(pFull.pAbs());
             if (pFull.e() > pMax.e()) pMax = pFull;
 		}
