@@ -389,10 +389,10 @@ bool Thrust::analyzeNew(const Event& event) {
 		vector<Vec4> pSort;
 		for (int i2 = 0; i2 < 2 * nStudy; i2++) {
 			if (i2 != i1) {	
-				pSort.push_back(pOrderDouble[i2] - pOrderDouble[i1]);
+				pSort.push_back(pOrderDouble[i2]);
 			}
 		}
-		std::sort(pSort.begin(), pSort.end(), phiLessThan());
+		std::sort(pSort.begin(), pSort.end(), phiLessThan(pOrderDouble[i1]));
 
 		// Sum momenta in candidate partition.
 		for (int i2 = 0; i2 < nStudy - 1; i2++) {
@@ -410,7 +410,7 @@ bool Thrust::analyzeNew(const Event& event) {
   }
 
   // Maximum gives thrust axis and value.
-  eVal1 = pMax.e() / pSum.e();
+  eVal1 = 2. * pMax.e() / pSum.e();
   eVec1 = pMax / pMax.e();
   eVec1.e(0.);
 
