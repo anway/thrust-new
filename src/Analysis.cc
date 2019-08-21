@@ -231,6 +231,7 @@ bool Thrust::analyze(const Event& event) {
   // Initial values and counters zero.
   eVal1 = eVal2 = eVal3 = 0.;
   eVec1 = eVec2 = eVec3 = 0.;
+  numParticles = 0;
   int nStudy = 0;
   vector<Vec4> pOrder;
   Vec4 pSum, nRef, pPart, pFull, pMax;
@@ -256,6 +257,8 @@ bool Thrust::analyze(const Event& event) {
     ++nFew;
     return false;
   }
+
+  numParticles = nStudy;
 
   // Try all combinations of reference vector orthogonal to two particles.
   for (int i1 = 0; i1 < nStudy - 1; ++i1)
@@ -344,6 +347,7 @@ bool Thrust::analyzeNew(const Event& event) {
   // Initial values and counters zero.
   eVal1 = eVal2 = eVal3 = 0.;
   eVec1 = eVec2 = eVec3 = 0.;
+  numParticles = 0;
   int nStudy = 0;
   vector<Vec4> pOrder, pOrderDouble;
   Vec4 pSum, nRef, pPart, pFull, pMax;
@@ -375,6 +379,8 @@ bool Thrust::analyzeNew(const Event& event) {
     return false;
   }
 
+  numParticles = nStudy;
+
   // Iterate over first particle.
   for (int i1 = 0; i1 < 2 * nStudy; i1++) {
 		pFull = pOrderDouble[i1] / 2.;
@@ -386,7 +392,7 @@ bool Thrust::analyzeNew(const Event& event) {
 				pSort.push_back(pOrderDouble[i2] - pOrderDouble[i1]);
 			}
 		}
-		std::sort(pSort.begin(), pSort.end(), [](Vec4 p1, Vec4 p2) {return p1.phi() > p2.phi();});
+		std::sort(pSort.begin(), pSort.end(), phiLessThan());
 
 		// Sum momenta in candidate partition.
 		for (int i2 = 0; i2 < nStudy - 1; i2++) {

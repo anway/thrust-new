@@ -82,7 +82,7 @@ class Thrust {
 public:
 
   // Constructor.
-  Thrust(int selectIn = 2) : select(selectIn), eVal1(), eVal2(), eVal3(),
+  Thrust(int selectIn = 2) : select(selectIn), eVal1(), eVal2(), eVal3(), numParticles(),
     nFew(0) {}
 
   // Analyze event.
@@ -96,6 +96,7 @@ public:
   double oblateness()   const {return eVal2 - eVal3;}
   Vec4 eventAxis(int i) const {return (i < 2) ? eVec1 :
     ( (i < 3) ? eVec2 : eVec3 ) ;}
+  int getNumParticles() const {return numParticles;}
 
   // Provide a listing of the info.
   void list() const;
@@ -104,6 +105,12 @@ public:
   int nError() const {return nFew;}
 
 private:
+  // Use for comparing two four vectors to sort by azimuth.
+  struct phiLessThan {
+    bool operator()(const Vec4& p1, const Vec4& p2) const {
+      return p1.phi() < p2.phi();
+    }
+  };
 
   // Constants: could only be changed in the code itself.
   static const int    NSTUDYMIN, TIMESTOPRINT;
@@ -115,6 +122,7 @@ private:
   // Outcome of analysis.
   double eVal1, eVal2, eVal3;
   Vec4   eVec1, eVec2, eVec3;
+  int	 numParticles;
 
   // Error statistics;
   int    nFew;

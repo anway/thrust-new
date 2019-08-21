@@ -13,6 +13,8 @@
 using namespace Pythia8;
 
 int main() {
+  ofstream out_file;
+  out_file.open("thrust_diff.dat");
 
   // Generator.
   Pythia pythia;
@@ -51,7 +53,7 @@ int main() {
     double thrOldEnd = std::clock() - thrOldStart;
     if (thrOldDone) {
 		std::clock_t thrNewStart = std::clock();
-        bool thrNewDone = thrNew.analyze( pythia.event );
+        bool thrNewDone = thrNew.analyzeNew( pythia.event );
 		double thrNewEnd = std::clock() - thrNewStart;
         if (thrNewDone) {
           if (iEvent < 3) {
@@ -63,6 +65,7 @@ int main() {
           dOblateness.fill( thrNew.oblateness() - thrOld.oblateness());
           dTAxis.fill( thrNew.eventAxis(1).pz() - thrOld.eventAxis(1).pz());
           dTime.fill( thrOldEnd - thrNewEnd);
+		  out_file << thrNew.getNumParticles() << " " << thrOldEnd - thrNewEnd << endl;
       }
     }
 
@@ -70,6 +73,7 @@ int main() {
   }
   pythia.stat();
   cout << dThrust << dOblateness << dTAxis << dTime << endl;;
+  out_file.close();
 
   // Done.
   return 0;
