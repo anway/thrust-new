@@ -105,7 +105,7 @@ public:
   int nError() const {return nFew;}
 
 private:
-  // Use for comparing two four vectors to sort by azimuth.
+  // Use for comparing two four vectors to sort by azimuth for new thrust implementation.
   struct phiLessThan {
     phiLessThan(Vec4 p1, Vec4 p2) {this->p1 = p1; this->p2 = p2;}
     bool operator()(const Vec4& p3, const Vec4& p4) const {

@@ -368,6 +368,7 @@ bool Thrust::analyzeNew(const Event& event) {
     pSum += pNow;
     pOrder.push_back(pNow);
 
+	// Add doubler for each vector.
 	Vec4 pNowDouble = -event[i].p();
 	pNowDouble.e(pNowDouble.pAbs());
     pOrderDouble.push_back(pNow);
@@ -388,7 +389,7 @@ bool Thrust::analyzeNew(const Event& event) {
   for (int i1 = 0; i1 < 2 * nStudy; i1++) {
 		pFull = pOrderDouble[i1];
 
-		// Sort other particles by azimuth.
+		// Sort other particles by azimuth, excluding doubler and taking arbitrary phi = 0 reference point.
 		vector<Vec4> pSort;
 		for (int i2 = 0; i2 < 2 * nStudy; i2++) {
 			bool isDouble = ((i1 % 2 == 0) && (i2 == i1 + 1)) || ((i1 % 2 == 1) && (i2 == i1 - 1));
@@ -398,14 +399,14 @@ bool Thrust::analyzeNew(const Event& event) {
 		}
 		std::sort(pSort.begin() + 1, pSort.end(), phiLessThan(pOrderDouble[i1], pSort[0]));
 
-		// Sum momenta in candidate partition.
+		// Sum momenta in this candidate partition.
 		for (int i2 = 0; i2 < nStudy - 1; i2++) {
 			pFull += pSort[i2];
 		} 
         pFull.e(pFull.pAbs());
         if (pFull.e() > pMax.e()) pMax = pFull;
 
-        // Check all other partitions.
+        // Check all other partitions by stepping through sorted list.
 		for (int i2 = 0; i2 < 2 * nStudy - 3; i2++) {
 			pFull -= 2. * pSort[i2];
             pFull.e(pFull.pAbs());

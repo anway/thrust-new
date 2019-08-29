@@ -8,6 +8,7 @@
 
 #include <cstdio>
 #include <ctime>
+#include <assert.h>
 #include "Pythia8/Pythia.h"
 
 using namespace Pythia8;
@@ -34,20 +35,14 @@ int main() {
   pythia.settings.parm("Beams:eCM", mZ);
   pythia.init();
 
-  // Histogram for thrust difference.
-  Hist dThrust("delta thrust", 100, -1., 1.);
-  Hist dOblateness("delta oblateness", 100, -1., 1.);
-  Hist dTAxis("delta cos(theta_Thrust)", 100, -2., 2.);
-  Hist dTime("delta time", 100, -2., 2.);
-
   // Set up Thrust analysis.
   Thrust thrOld, thrNew;
 
   // Begin event loop. Generate event. Skip if error. List first few.
-  for (int iEvent = 0; iEvent < 100; ++iEvent) {
+  for (int iEvent = 0; iEvent < 10000; ++iEvent) {
     if (!pythia.next()) continue;
 
-    // Find and histogram thrust.
+    // Find and compare thrust.
     std::clock_t thrOldStart = std::clock();
     bool thrOldDone = thrOld.analyze( pythia.event );
     double thrOldEnd = std::clock() - thrOldStart;
@@ -56,23 +51,15 @@ int main() {
         bool thrNewDone = thrNew.analyzeNew( pythia.event );
 		double thrNewEnd = std::clock() - thrNewStart;
         if (thrNewDone) {
-          if (fabs(thrNew.thrust() - thrOld.thrust()) > 0.0001) {
-			cout << "Old thrust result" << endl;
-			thrOld.list();
-			cout << "New thrust result" << endl;
-            thrNew.list(); }
-          dThrust.fill( thrNew.thrust() - thrOld.thrust());
-          dOblateness.fill( thrNew.oblateness() - thrOld.oblateness());
-          dTAxis.fill( thrNew.eventAxis(1).pz() - thrOld.eventAxis(1).pz());
-          dTime.fill( thrOldEnd - thrNewEnd);
-		  out_file << thrNew.getNumParticles() << " " << thrOldEnd - thrNewEnd << endl;
+          assert(fabs(thrNew.thrust() - thrOld.thrust()) <= 0.000001);
+		  out_file << thrNew.thrust() << " " << thrOld.thrust() << endl;
+		  out_file << thrNew.getNumParticles() << " " << thrNewEnd << " " << thrOldEnd << endl;
       }
     }
 
   // End of event loop. Statistics. Output histograms.
   }
   pythia.stat();
-  cout << dThrust << dOblateness << dTAxis << dTime << endl;;
   out_file.close();
 
   // Done.
