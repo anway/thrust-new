@@ -44,7 +44,7 @@ int main() {
   Thrust thrOld, thrNew;
 
   // Begin event loop. Generate event. Skip if error. List first few.
-  for (int iEvent = 0; iEvent < 10000; ++iEvent) {
+  for (int iEvent = 0; iEvent < 100; ++iEvent) {
     if (!pythia.next()) continue;
 
     // Find and histogram thrust.
@@ -56,7 +56,7 @@ int main() {
         bool thrNewDone = thrNew.analyzeNew( pythia.event );
 		double thrNewEnd = std::clock() - thrNewStart;
         if (thrNewDone) {
-          if (iEvent < 3) {
+          if (fabs(thrNew.thrust() - thrOld.thrust()) > 0.0001) {
 			cout << "Old thrust result" << endl;
 			thrOld.list();
 			cout << "New thrust result" << endl;

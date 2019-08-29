@@ -107,17 +107,25 @@ public:
 private:
   // Use for comparing two four vectors to sort by azimuth.
   struct phiLessThan {
-    phiLessThan(Vec4 p1) {this->p1 = p1;}
-    bool operator()(const Vec4& p2, const Vec4& p3) const {
-      double p2phi = p2.phi() - p1.phi();
-      if (p2phi < 0) p2phi += atan(1.0) * 8.; 
+    phiLessThan(Vec4 p1, Vec4 p2) {this->p1 = p1; this->p2 = p2;}
+    bool operator()(const Vec4& p3, const Vec4& p4) const {
+	  Vec4 zhat = p1 / p1.pAbs(); 
+	  Vec4 xhat = p2 / p2.pAbs();
+	  Vec4 yhat = cross3(zhat, xhat);
 
-      double p3phi = p3.phi() - p1.phi();
-      if (p3phi < 0) p3phi += atan(1.0) * 8.; 
+	  Vec4 p3perp = p3 - (dot3(p3, zhat) * zhat);
+	  Vec4 p4perp = p4 - (dot3(p4, zhat) * zhat);
 
-      return p2phi < p3phi;
+	  double p3phi = atan2(dot3(p3perp, yhat), dot3(p3perp, xhat));
+	  double p4phi = atan2(dot3(p4perp, yhat), dot3(p4perp, xhat));;
+
+
+	  if (p3phi < 0) p3phi += atan(1.0) * 8.;
+	  if (p4phi < 0) p4phi += atan(1.0) * 8.;
+
+	  return p3phi < p4phi;
     }
-    Vec4 p1;
+    Vec4 p1, p2;
   };
 
   // Constants: could only be changed in the code itself.

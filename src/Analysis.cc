@@ -269,8 +269,11 @@ bool Thrust::analyze(const Event& event) {
 
     // Add all momenta with sign; two choices for each reference particle.
     for (int i = 0; i < nStudy; ++i) if (i != i1 && i != i2) {
-      if (dot3(pOrder[i], nRef) > 0.) pPart += pOrder[i];
-      else                            pPart -= pOrder[i];
+      if (dot3(pOrder[i], nRef) > 0.) {
+		pPart += pOrder[i];
+      } else {                            
+		pPart -= pOrder[i];
+	  }
     }
     for (int j = 0; j < 4; ++j) {
       if      (j == 0) pFull = pPart + pOrder[i1] + pOrder[i2];
@@ -383,34 +386,35 @@ bool Thrust::analyzeNew(const Event& event) {
 
   // Iterate over first particle.
   for (int i1 = 0; i1 < 2 * nStudy; i1++) {
-		pFull = pOrderDouble[i1] / 2.;
+		pFull = pOrderDouble[i1];
 
 		// Sort other particles by azimuth.
 		vector<Vec4> pSort;
 		for (int i2 = 0; i2 < 2 * nStudy; i2++) {
-			if (i2 != i1) {	
+			bool isDouble = ((i1 % 2 == 0) && (i2 == i1 + 1)) || ((i1 % 2 == 1) && (i2 == i1 - 1));
+			if (i2 != i1 && !isDouble) {	
 				pSort.push_back(pOrderDouble[i2]);
 			}
 		}
-		std::sort(pSort.begin(), pSort.end(), phiLessThan(pOrderDouble[i1]));
+		std::sort(pSort.begin() + 1, pSort.end(), phiLessThan(pOrderDouble[i1], pSort[0]));
 
 		// Sum momenta in candidate partition.
 		for (int i2 = 0; i2 < nStudy - 1; i2++) {
-			pFull += pSort[i2] / 2.;
+			pFull += pSort[i2];
 		} 
         pFull.e(pFull.pAbs());
         if (pFull.e() > pMax.e()) pMax = pFull;
 
         // Check all other partitions.
-		for (int i2 = 1; i2 < 2 * nStudy - 1; i2++) {
-			pFull -= pSort[i2];
+		for (int i2 = 0; i2 < 2 * nStudy - 3; i2++) {
+			pFull -= 2. * pSort[i2];
             pFull.e(pFull.pAbs());
             if (pFull.e() > pMax.e()) pMax = pFull;
 		}
   }
 
   // Maximum gives thrust axis and value.
-  eVal1 = 2. * pMax.e() / pSum.e();
+  eVal1 = pMax.e() / pSum.e();
   eVec1 = pMax / pMax.e();
   eVec1.e(0.);
 
